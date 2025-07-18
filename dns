@@ -1,0 +1,62 @@
+locals {
+  external_dns = {
+    global = {
+      leaderElection = {
+        namespace = "external-dns"
+      }
+    }
+
+    installCRDs  = true
+    replicaCount = 2
+
+    resources = {
+      limits = {
+        cpu    = "100m"
+        memory = "250Mi"
+      }
+      requests = {
+        cpu    = "100m"
+        memory = "100Mi"
+      }
+    }
+
+    securityContext = {
+      readOnlyRootFilesystem   = var.read_only_root_filesystem
+      runAsUser                = var.run_as_user
+      runAsNonRoot             = var.run_as_non_root
+      allowPrivilegeEscalation = var.allow_privilege_escalation
+      seccompProfile = {
+        type = "RuntimeDefault"
+      }
+    }
+
+    containerSecurityContext = {
+      capabilities = {
+        drop = ["ALL"]
+      }
+      readOnlyRootFilesystem   = var.read_only_root_filesystem
+      runAsUser                = var.run_as_user
+      runAsNonRoot             = var.run_as_non_root
+      allowPrivilegeEscalation = var.allow_privilege_escalation
+    }
+
+    webhook = {
+      resources = {
+        limits = {
+          cpu    = "100m"
+          memory = "250Mi"
+        }
+        requests = {
+          cpu    = "100m"
+          memory = "100Mi"
+        }
+      }
+
+      containerSecurityContext = {
+        capabilities = {
+          drop = ["ALL"]
+        }
+      }
+    }
+  }
+}
