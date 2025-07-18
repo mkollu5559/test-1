@@ -1,62 +1,50 @@
 locals {
-  external_dns = {
-    global = {
-      leaderElection = {
-        namespace = "external-dns"
-      }
-    }
-
-    installCRDs  = true
-    replicaCount = 2
-
+  external_secrets = {
     resources = {
       limits = {
         cpu    = "100m"
-        memory = "250Mi"
+        memory = "100Mi"
       }
       requests = {
-        cpu    = "100m"
         memory = "100Mi"
       }
     }
 
     securityContext = {
-      readOnlyRootFilesystem   = var.read_only_root_filesystem
-      runAsUser                = var.run_as_user
-      runAsNonRoot             = var.run_as_non_root
-      allowPrivilegeEscalation = var.allow_privilege_escalation
-      seccompProfile = {
-        type = "RuntimeDefault"
-      }
-    }
-
-    containerSecurityContext = {
-      capabilities = {
-        drop = ["ALL"]
-      }
-      readOnlyRootFilesystem   = var.read_only_root_filesystem
-      runAsUser                = var.run_as_user
-      runAsNonRoot             = var.run_as_non_root
-      allowPrivilegeEscalation = var.allow_privilege_escalation
+      readOnlyRootFilesystem   = true
+      runAsNonRoot             = true
+      runAsUser                = 1000
+      allowPrivilegeEscalation = false
     }
 
     webhook = {
       resources = {
         limits = {
           cpu    = "100m"
-          memory = "250Mi"
+          memory = "100Mi"
         }
         requests = {
-          cpu    = "100m"
           memory = "100Mi"
         }
       }
 
-      containerSecurityContext = {
-        capabilities = {
-          drop = ["ALL"]
-        }
+      securityContext = {
+        readOnlyRootFilesystem   = true
+        runAsNonRoot             = true
+        runAsUser                = 1000
+        allowPrivilegeEscalation = false
       }
     }
+
+    certController = {
+      securityContext = {
+        readOnlyRootFilesystem   = true
+        runAsNonRoot             = true
+        runAsUser                = 1000
+        allowPrivilegeEscalation = false
+      }
+    }
+
+    revisionHistoryLimit = 2
   }
 }
