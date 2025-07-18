@@ -1,0 +1,42 @@
+locals {
+  external_dns = {
+    provider = "azure"
+
+    azure = {
+      resourceGroup               = var.resource_group_name
+      tenantId                    = var.tenant_id
+      subscriptionId              = var.subscription_id
+      useManagedIdentityExtension = true
+      userAssignedIdentityID      = var.user_assigned_identity_id
+    }
+
+    logLevel             = "debug"
+    domainFilters        = [var.domain]
+    txtOwnerId           = "external-dns"
+    revisionHistoryLimit = local.external_dns_revision_history_limit
+
+    resources = {
+      limits = {
+        cpu    = "100m"
+        memory = "100Mi"
+      }
+      requests = {
+        memory = "100Mi"
+      }
+    }
+
+    containerSecurityContext = {
+      allowPrivilegeEscalation = false
+      readOnlyRootFilesystem   = true
+    }
+
+    podSecurityContext = {
+      enabled     = true
+      fsGroup     = 1001
+      runAsUser   = 1001
+      runAsNonRoot = true
+    }
+  }
+
+  external_dns_revision_history_limit = 2
+}
