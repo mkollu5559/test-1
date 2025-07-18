@@ -1,50 +1,62 @@
 locals {
-  external_secrets = {
-    resources = {
-      limits = {
-        cpu    = "100m"
-        memory = "100Mi"
+  ingress_nginx = {
+    controller = {
+      replicaCount         = 2
+      revisionHistoryLimit = 2
+
+      publishService = {
+        enabled = true
       }
-      requests = {
-        memory = "100Mi"
+
+      service = {
+        annotations = {
+          "service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path" = "/healthz"
+        }
+      }
+
+      config = {
+        name           = "controller"
+        azure          = true
+        subscriptionId = var.subscription_id
+        resourceGroup  = var.resource_group_name
+        usePrivateIP   = true
+        dnsZone        = var.dns_zone
+        dnsLabel       = "ingress-${random_string.dns_label_suffix.result}"
+      }
+
+      resources = {
+        limits = {
+          cpu    = "500m"
+          memory = "500Mi"
+        }
+        requests = {
+          cpu    = "500m"
+          memory = "500Mi"
+        }
+      }
+
+      containerSecurityContext = {
+        capabilities = {
+          drop = ["ALL"]
+          add  = ["NET_BIND_SERVICE"]
+        }
+        allowPrivilegeEscalation = false
+        readOnlyRootFilesystem   = true
+        runAsUser                = 101
+        runAsNonRoot             = true
       }
     }
 
-    securityContext = {
-      readOnlyRootFilesystem   = true
-      runAsNonRoot             = true
-      runAsUser                = 1000
-      allowPrivilegeEscalation = false
-    }
-
-    webhook = {
+    defaultBackend = {
       resources = {
         limits = {
           cpu    = "100m"
           memory = "100Mi"
         }
         requests = {
-          memory = "100Mi"
+          memory = "250Mi"
         }
       }
-
-      securityContext = {
-        readOnlyRootFilesystem   = true
-        runAsNonRoot             = true
-        runAsUser                = 1000
-        allowPrivilegeEscalation = false
-      }
     }
-
-    certController = {
-      securityContext = {
-        readOnlyRootFilesystem   = true
-        runAsNonRoot             = true
-        runAsUser                = 1000
-        allowPrivilegeEscalation = false
-      }
-    }
-
-    revisionHistoryLimit = 2
   }
 }
